@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -44,7 +43,7 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
 .menu-card h2 { font-size:19px; margin:0 0 10px; }
 .menu-card p { font-size:13px; color:#888; margin:0; }
 
-/* 상품조회 */
+/* 기존 거래처별 상품조회 */
 .product-container { max-width:1100px; margin:auto; }
 .customer-options { display:none; position:absolute; top:76px; left:0; right:0; z-index:20; max-height:230px; overflow-y:auto; background:white; border:1px solid #ddd; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.12); }
 .customer-option { padding:12px; cursor:pointer; border-bottom:1px solid #eee; }
@@ -115,6 +114,44 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
 .stock-empty { padding:45px 15px; text-align:center; color:#999; font-size:14px; background:white; }
 .stock-loading { padding:45px 15px; text-align:center; color:#777; background:white; }
 .stock-status { margin-top:14px; text-align:center; color:#888; font-size:11px; word-break:break-word; }
+
+/* 새로 추가한 별도 상품조회 */
+.simple-product-container { max-width:1100px; margin:0 auto; }
+.simple-search-row { display:flex; gap:8px; width:100%; }
+.simple-search-row input { flex:1; min-width:0; }
+.simple-scan-button { display:none; background:#16a34a; color:white; white-space:nowrap; }
+#simpleScannerArea { display:none; margin-top:14px; padding:12px; background:#f8fafc; border-radius:10px; }
+#simpleReader { width:100%; max-width:500px; margin:0 auto; overflow:hidden; }
+#simpleReader video { width:100% !important; object-fit:cover; }
+.simple-scanner-guide { text-align:center; color:#666; font-size:13px; }
+.simple-stop-button { width:100%; background:#dc2626; color:white; }
+.simple-info-area { display:flex; justify-content:space-between; gap:10px; margin-top:16px; color:#666; font-size:13px; }
+#simpleResultCount { color:#2563eb; }
+.simple-table-wrapper { width:100%; overflow-x:auto; }
+.simple-table { width:100%; border-collapse:collapse; min-width:650px; }
+.simple-table th { background:#e9efff; padding:13px 9px; font-size:13px; border-bottom:1px solid #ddd; }
+.simple-table td { padding:12px 9px; font-size:13px; text-align:center; border-bottom:1px solid #eee; }
+.simple-table td.simple-name { text-align:left; font-weight:bold; }
+.simple-table td.simple-price { color:#2563eb; font-weight:bold; white-space:nowrap; }
+#simpleMobileResults { display:none; }
+.simple-product-card { background:white; border:1px solid #e5e7eb; border-radius:10px; padding:14px; margin-bottom:10px; }
+.simple-card-top { display:flex; justify-content:space-between; gap:8px; margin-bottom:9px; }
+.simple-category { background:#eef2ff; color:#4f46e5; padding:5px 8px; border-radius:6px; font-size:12px; font-weight:bold; }
+.simple-card-price { color:#2563eb; font-weight:bold; white-space:nowrap; }
+.simple-card-name { font-size:16px; font-weight:bold; line-height:1.4; margin-bottom:10px; }
+.simple-card-info { display:flex; flex-direction:column; gap:6px; font-size:13px; color:#666; }
+.simple-card-info div { display:flex; gap:8px; }
+.simple-card-info strong { width:45px; flex-shrink:0; color:#999; font-weight:normal; }
+.simple-empty { padding:30px 15px; text-align:center; color:#888; }
+
+@media(max-width:700px) {
+ .simple-search-row { gap:5px; }
+ .simple-search-row button { padding:10px 9px; font-size:12px; }
+ .simple-scan-button { display:block; }
+ .simple-info-area { font-size:11px; }
+ .simple-table-wrapper { display:none; }
+ #simpleMobileResults { display:block; }
+}
 
 .empty,.loading { padding:35px; text-align:center; color:#888; }
 
@@ -200,6 +237,11 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
    <h2>나주창고재고</h2>
    <p>매입사별 창고 재고 및 수량 확인</p>
   </div>
+  <div class="menu-card" onclick="openSimpleProductPage()">
+   <div class="menu-icon">🛍️</div>
+   <h2>상품조회</h2>
+   <p>전체 상품정보 및 소매가 조회</p>
+  </div>
  </div>
 </div>
 
@@ -242,6 +284,42 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
   <div id="mobileResults" class="mobile-results">검색 결과가 없습니다.</div>
  </div>
  <div class="status-message">상품 정보는 약 60초마다 자동으로 갱신됩니다.</div>
+</div>
+
+<!-- 새로 추가한 상품조회 -->
+<div id="simpleProductScreen" class="simple-product-container hidden">
+ <div class="header-row">
+  <h1>SW 상품조회</h1>
+  <button class="back-button" onclick="goToMenu()">← 프로그램 선택</button>
+ </div>
+
+ <div class="panel">
+  <div class="simple-search-row">
+   <input type="text" id="simpleSearchInput" placeholder="상품명 또는 바코드 검색">
+   <button class="secondary" onclick="searchSimpleProducts()">검색</button>
+   <button class="simple-scan-button" id="simpleScanButton" onclick="startSimpleScanner()">스캔</button>
+  </div>
+  <div id="simpleScannerArea">
+   <div id="simpleReader"></div>
+   <p class="simple-scanner-guide">상품 바코드를 카메라 화면에 비춰주세요.</p>
+   <button class="simple-stop-button" onclick="stopSimpleScanner()">스캔 종료</button>
+  </div>
+  <div class="simple-info-area">
+   <span>검색 결과 <b id="simpleResultCount">0</b>건</span>
+   <span id="simpleUpdateTime">데이터 불러오는 중...</span>
+  </div>
+  <div id="simpleStatusMessage" class="status-message">상품 데이터를 불러올 준비가 되었습니다.</div>
+ </div>
+
+ <div class="panel">
+  <div class="simple-table-wrapper">
+   <table class="simple-table">
+    <thead><tr><th>상품분류</th><th>바코드</th><th>상품명</th><th>규격</th><th>소매가</th></tr></thead>
+    <tbody id="simpleTableBody"><tr><td colspan="5" class="empty">상품 데이터를 불러오는 중입니다.</td></tr></tbody>
+   </table>
+  </div>
+  <div id="simpleMobileResults"></div>
+ </div>
 </div>
 
 <!-- 매입사별 발주현황 -->
@@ -336,12 +414,13 @@ document.getElementById("password").addEventListener("keydown",e => {
 });
 
 function hideAllPages() {
- ["loginScreen","menuScreen","productScreen","orderScreen","stockScreen"].forEach(id => {
+ ["loginScreen","menuScreen","productScreen","simpleProductScreen","orderScreen","stockScreen"].forEach(id => {
   document.getElementById(id).classList.add("hidden");
  });
 }
 function goToMenu() {
  stopScanner();
+ stopSimpleScanner();
  hideAllPages();
  document.getElementById("menuScreen").classList.remove("hidden");
  activePage = "menu";
@@ -367,6 +446,249 @@ function openStockPage() {
  renderStock();
  updateStockLastUpdated();
  loadStockSheet(currentStockSupplier,stockData[currentStockSupplier].length > 0);
+}
+
+/* 새로 추가한 별도 상품조회 기능 */
+const SIMPLE_PRODUCT_SPREADSHEET_ID = "12vYM5rzLo_bCiKipLJfX-io3c9ycI9cW18ST07_d6GY";
+const SIMPLE_PRODUCT_GID = "0";
+let simpleProducts = [];
+let simpleProductsLoaded = false;
+let simpleProductsLoading = false;
+let simpleScanner = null;
+let simpleScannerRunning = false;
+let simpleHasScanned = false;
+
+function openSimpleProductPage() {
+ hideAllPages();
+ document.getElementById("simpleProductScreen").classList.remove("hidden");
+ activePage = "simpleProduct";
+ if (!simpleProductsLoaded) loadSimpleProducts();
+}
+
+function loadSimpleProducts() {
+ if (simpleProductsLoading) return;
+ simpleProductsLoading = true;
+ document.getElementById("simpleStatusMessage").textContent = "상품 데이터를 불러오는 중입니다.";
+
+ const callbackName = "simpleProductCallback_" + Date.now() + "_" + Math.floor(Math.random()*100000);
+ const script = document.createElement("script");
+ script.async = true;
+ let finished = false;
+
+ const timeout = setTimeout(() => finishError("응답 시간이 초과되었습니다."), 20000);
+
+ function cleanup() {
+  if (finished) return;
+  finished = true;
+  clearTimeout(timeout);
+  script.remove();
+  delete window[callbackName];
+  simpleProductsLoading = false;
+ }
+
+ function finishError(message) {
+  if (finished) return;
+  cleanup();
+  document.getElementById("simpleStatusMessage").textContent = message;
+ }
+
+ window[callbackName] = function(response) {
+  if (finished) return;
+  try {
+   if (!response || response.status === "error" || !response.table) {
+    throw new Error("상품 데이터를 불러오지 못했습니다.");
+   }
+   const rows = response.table.rows || [];
+   simpleProducts = rows.map(row => {
+    const cells = row.c || [];
+    return {
+     category: getSimpleCellValue(cells[0]),
+     barcode: getSimpleCellValue(cells[1]),
+     name: getSimpleCellValue(cells[2]),
+     size: getSimpleCellValue(cells[3]),
+     price: getSimpleCellValue(cells[4])
+    };
+   });
+   if (simpleProducts.length && simpleProducts[0].category === "상품분류") simpleProducts.shift();
+   simpleProducts = simpleProducts.filter(product => product.name !== "");
+   simpleProductsLoaded = true;
+
+   const keyword = document.getElementById("simpleSearchInput").value.trim();
+   if (keyword) searchSimpleProducts();
+   else renderSimpleProducts(simpleProducts);
+
+   document.getElementById("simpleUpdateTime").textContent =
+    "갱신 " + new Date().toLocaleTimeString("ko-KR");
+   document.getElementById("simpleStatusMessage").textContent =
+    "상품 " + simpleProducts.length.toLocaleString("ko-KR") + "개가 정상적으로 업데이트되었습니다.";
+  } catch(error) {
+   finishError(error.message || "상품 데이터 처리 중 오류가 발생했습니다.");
+  } finally {
+   if (!finished) cleanup();
+  }
+ };
+
+ const url = "https://docs.google.com/spreadsheets/d/" + SIMPLE_PRODUCT_SPREADSHEET_ID +
+  "/gviz/tq?gid=" + SIMPLE_PRODUCT_GID +
+  "&headers=0&tqx=" + encodeURIComponent("out:json;responseHandler:" + callbackName);
+ script.onerror = () => finishError("구글 스프레드시트 연결에 실패했습니다.");
+ script.src = url;
+ document.body.appendChild(script);
+}
+
+function getSimpleCellValue(cell) {
+ if (!cell) return "";
+ if (cell.f !== null && cell.f !== undefined) return String(cell.f).trim();
+ if (cell.v !== null && cell.v !== undefined) return String(cell.v).trim();
+ return "";
+}
+
+function normalizeSimpleBarcode(value) {
+ return String(value || "").trim().replace(/\s/g,"").replace(/^0+/,"");
+}
+
+function searchSimpleProducts() {
+ if (!simpleProductsLoaded) {
+  document.getElementById("simpleStatusMessage").textContent = "상품 데이터를 불러오는 중입니다.";
+  return;
+ }
+ const keyword = document.getElementById("simpleSearchInput").value.trim();
+ if (!keyword) {
+  renderSimpleProducts(simpleProducts);
+  return;
+ }
+ const barcodeKeyword = normalizeSimpleBarcode(keyword);
+ const barcodeMatches = simpleProducts.filter(product =>
+  normalizeSimpleBarcode(product.barcode) === barcodeKeyword
+ );
+ let results;
+ if (/^\d+$/.test(keyword) && barcodeMatches.length) {
+  results = barcodeMatches;
+ } else {
+  const searchName = keyword.toLowerCase();
+  results = simpleProducts.filter(product => product.name.toLowerCase().includes(searchName));
+ }
+ renderSimpleProducts(results);
+}
+
+document.getElementById("simpleSearchInput").addEventListener("keydown",event => {
+ if (event.key === "Enter") searchSimpleProducts();
+});
+
+function formatSimplePrice(value) {
+ const number = Number(String(value).replace(/,/g,"").replace(/[^\d.-]/g,""));
+ if (value === "" || !Number.isFinite(number)) return escapeHTML(value);
+ return number.toLocaleString("ko-KR") + "원";
+}
+
+function renderSimpleProducts(results) {
+ const tableBody = document.getElementById("simpleTableBody");
+ const mobile = document.getElementById("simpleMobileResults");
+ tableBody.innerHTML = "";
+ mobile.innerHTML = "";
+ document.getElementById("simpleResultCount").textContent = results.length.toLocaleString("ko-KR");
+
+ if (!results.length) {
+  tableBody.innerHTML = '<tr><td colspan="5" class="simple-empty">검색 결과가 없습니다.</td></tr>';
+  mobile.innerHTML = '<div class="simple-empty">검색 결과가 없습니다.</div>';
+  return;
+ }
+
+ results.forEach(product => {
+  const tr = document.createElement("tr");
+  [
+   ["category",product.category],
+   ["barcode",product.barcode],
+   ["simple-name",product.name],
+   ["size",product.size],
+   ["simple-price",null]
+  ].forEach(([className,value],index) => {
+   const td = document.createElement("td");
+   if (className) td.className = className;
+   td.innerHTML = index === 4 ? formatSimplePrice(product.price) : escapeHTML(value);
+   tr.appendChild(td);
+  });
+  tableBody.appendChild(tr);
+
+  const card = document.createElement("div");
+  card.className = "simple-product-card";
+  card.innerHTML = `
+   <div class="simple-card-top">
+    <span class="simple-category">${escapeHTML(product.category || "분류 없음")}</span>
+    <span class="simple-card-price">${formatSimplePrice(product.price)}</span>
+   </div>
+   <div class="simple-card-name">${escapeHTML(product.name)}</div>
+   <div class="simple-card-info">
+    <div><strong>바코드</strong><span>${escapeHTML(product.barcode)}</span></div>
+    <div><strong>규격</strong><span>${escapeHTML(product.size || "-")}</span></div>
+   </div>`;
+  mobile.appendChild(card);
+ });
+}
+
+/* 새 상품조회 전용 바코드 스캐너 */
+async function startSimpleScanner() {
+ if (simpleScannerRunning) return;
+ if (typeof Html5Qrcode === "undefined") {
+  document.getElementById("simpleStatusMessage").textContent = "바코드 인식 라이브러리를 불러오지 못했습니다.";
+  return;
+ }
+ if (!window.isSecureContext) {
+  document.getElementById("simpleStatusMessage").textContent = "카메라 사용은 HTTPS 환경에서 가능합니다.";
+  return;
+ }
+
+ simpleHasScanned = false;
+ document.getElementById("simpleScannerArea").style.display = "block";
+ document.getElementById("simpleScanButton").disabled = true;
+ document.getElementById("simpleStatusMessage").textContent = "카메라를 실행하는 중입니다.";
+
+ try {
+  simpleScanner = new Html5Qrcode("simpleReader", {
+   formatsToSupport: [
+    Html5QrcodeSupportedFormats.EAN_13,
+    Html5QrcodeSupportedFormats.EAN_8,
+    Html5QrcodeSupportedFormats.UPC_A,
+    Html5QrcodeSupportedFormats.UPC_E,
+    Html5QrcodeSupportedFormats.CODE_128,
+    Html5QrcodeSupportedFormats.CODE_39,
+    Html5QrcodeSupportedFormats.ITF,
+    Html5QrcodeSupportedFormats.CODABAR
+   ],
+   verbose:false
+  });
+  await simpleScanner.start(
+   {facingMode:"environment"},
+   {fps:10,aspectRatio:1.7777778},
+   async decodedText => {
+    if (simpleHasScanned) return;
+    simpleHasScanned = true;
+    document.getElementById("simpleSearchInput").value = decodedText;
+    document.getElementById("simpleStatusMessage").textContent = "바코드 인식 완료: " + decodedText;
+    await stopSimpleScanner();
+    searchSimpleProducts();
+   },
+   () => {}
+  );
+  simpleScannerRunning = true;
+  document.getElementById("simpleStatusMessage").textContent = "바코드를 카메라에 비춰주세요.";
+ } catch(error) {
+  await stopSimpleScanner();
+  document.getElementById("simpleStatusMessage").textContent = "카메라 실행에 실패했습니다. 카메라 권한을 확인해주세요.";
+  console.error(error);
+ }
+}
+
+async function stopSimpleScanner() {
+ const scanner = simpleScanner;
+ simpleScanner = null;
+ if (scanner) {
+  try { await scanner.stop(); } catch(error) {}
+  try { scanner.clear(); } catch(error) {}
+ }
+ simpleScannerRunning = false;
+ document.getElementById("simpleScannerArea").style.display = "none";
+ document.getElementById("simpleScanButton").disabled = false;
 }
 
 /* 공통 유틸리티 */
@@ -612,7 +934,7 @@ function addProductInfo(container,label,value) {
  container.appendChild(row);
 }
 
-/* 바코드 카메라 */
+/* 기존 거래처별 단가조회 바코드 카메라 */
 let scanner = null;
 let scannerRunning = false;
 async function startScanner() {
@@ -1047,6 +1369,9 @@ createStockTabs();
 setInterval(function() {
  if (activePage === "product") {
   loadProductData();
+ }
+ if (activePage === "simpleProduct") {
+  loadSimpleProducts();
  }
  if (activePage === "order") {
   loadOrderData();
