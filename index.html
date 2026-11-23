@@ -1582,7 +1582,20 @@ function loadPaymentData() {
 
    if (!response.table) throw new Error("시트 데이터를 읽을 수 없습니다.");
 
-   const rows = response.table.rows || [];
+  const rows = response.table.rows || [];
+
+console.log("===== 입금내역 행 확인 =====");
+
+rows.slice(0, 10).forEach((row, index) => {
+    console.log(
+        "GVIZ 행 번호:", index,
+        "실제 날짜:", row.c?.[0]?.f || row.c?.[0]?.v,
+        "금액:", row.c?.[2]?.f || row.c?.[2]?.v,
+        "거래기록:", row.c?.[5]?.f || row.c?.[5]?.v
+    );
+});
+
+console.log("전체 행 수:", rows.length);
 
    /*
     * 시트 구조
@@ -1601,7 +1614,7 @@ function loadPaymentData() {
     * 앞의 4개 행을 제외하고 가져옵니다.
     */
 
-   paymentData = rows.slice(4).map(row => {
+   paymentData = rows.map(row => {
     const cells = row.c || [];
 
     return {
@@ -1631,11 +1644,12 @@ function loadPaymentData() {
   }
  };
 
- const url = "https://docs.google.com/spreadsheets/d/" +
-  PAYMENT_SPREADSHEET_ID +
-  "/gviz/tq?gid=" + PAYMENT_GID +
-  "&headers=0&tqx=" +
-  encodeURIComponent("out:json;responseHandler:" + callbackName);
+const url = "https://docs.google.com/spreadsheets/d/" +
+    PAYMENT_SPREADSHEET_ID +
+    "/gviz/tq?gid=" + PAYMENT_GID +
+    "&range=A5:G" +
+    "&headers=0&tqx=" +
+    encodeURIComponent("out:json;responseHandler:" + callbackName);
 
  script.onerror = () => finishError("구글 스프레드시트 연결에 실패했습니다. 시트 공유 설정을 확인해주세요.");
  script.src = url;
