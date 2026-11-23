@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -144,6 +145,38 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
 .simple-card-info strong { width:45px; flex-shrink:0; color:#999; font-weight:normal; }
 .simple-empty { padding:30px 15px; text-align:center; color:#888; }
 
+/* 거래처 입금내역 */
+.payment-container { max-width:1200px; margin:0 auto; }
+.payment-toolbar { display:flex; gap:10px; margin-bottom:16px; }
+.payment-toolbar input { flex:1; min-width:0; }
+.payment-refresh-btn { background:#263b59; color:white; white-space:nowrap; }
+.payment-refresh-btn:disabled { opacity:.6; cursor:wait; }
+.payment-info { display:flex; justify-content:space-between; gap:8px; margin-bottom:14px; font-size:13px; color:#777; }
+.payment-count { color:#2563eb; font-weight:bold; }
+.payment-table-wrap { width:100%; overflow-x:auto; background:white; border-radius:12px; }
+.payment-table { width:100%; border-collapse:collapse; table-layout:fixed; }
+.payment-table th { background:#eaf0f8; padding:15px 12px; text-align:center; font-size:13px; color:#47566b; border-bottom:1px solid #dce3ed; }
+.payment-table td { padding:15px 12px; font-size:14px; text-align:center; border-bottom:1px solid #edf0f4; vertical-align:middle; overflow-wrap:anywhere; }
+.payment-table tr:last-child td { border-bottom:none; }
+.payment-table th:nth-child(1),.payment-table td:nth-child(1) { width:25%; }
+.payment-table th:nth-child(2),.payment-table td:nth-child(2) { width:20%; }
+.payment-table th:nth-child(3),.payment-table td:nth-child(3) { width:32%; }
+.payment-table th:nth-child(4),.payment-table td:nth-child(4) { width:23%; }
+.payment-date { color:#475569; font-weight:600; white-space:nowrap; }
+.payment-amount { color:#2563eb; font-size:17px !important; font-weight:800; text-align:center; white-space:nowrap; }
+.payment-customer { font-weight:800; color:#263b59; }
+.payment-note { color:#777; font-size:13px !important; }
+.payment-mobile-list { display:none; }
+.payment-card { background:white; border:1px solid #e5eaf0; border-radius:12px; padding:15px; margin-bottom:10px; box-shadow:0 1px 4px rgba(0,0,0,.04); }
+.payment-card-date { color:#777; font-size:12px; margin-bottom:10px; }
+.payment-card-customer { color:#263b59; font-size:16px; font-weight:800; line-height:1.5; overflow-wrap:anywhere; }
+.payment-card-amount { color:#2563eb; font-size:22px; font-weight:800; text-align:right; margin-top:12px; }
+.payment-card-note { color:#888; font-size:12px; margin-top:9px; border-top:1px solid #eee; padding-top:9px; overflow-wrap:anywhere; }
+.payment-empty,.payment-loading { padding:45px 15px; text-align:center; color:#999; background:white; border-radius:10px; }
+.payment-status { text-align:center; color:#888; font-size:12px; margin-top:12px; line-height:1.5; }
+
+.empty,.loading { padding:35px; text-align:center; color:#888; }
+
 @media(max-width:700px) {
  .simple-search-row { gap:5px; }
  .simple-search-row button { padding:10px 9px; font-size:12px; }
@@ -151,11 +184,7 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
  .simple-info-area { font-size:11px; }
  .simple-table-wrapper { display:none; }
  #simpleMobileResults { display:block; }
-}
 
-.empty,.loading { padding:35px; text-align:center; color:#888; }
-
-@media(max-width:700px) {
  body { padding:10px; }
  h1 { font-size:20px; }
  .panel { padding:15px; }
@@ -190,6 +219,15 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
  .stock-tab { font-size:13px; min-height:42px; }
  .stock-item { padding:12px; }
  .stock-product-name { font-size:14px; }
+
+ /* 입금내역 모바일 */
+ .payment-table-wrap { display:none; }
+ .payment-mobile-list { display:block; }
+ .payment-toolbar { gap:6px; }
+ .payment-toolbar button { padding:10px 11px; font-size:12px; }
+ .payment-info { font-size:11px; }
+ .payment-card { padding:14px; }
+ .payment-card-amount { font-size:21px; }
 }
 @media(max-width:360px) {
  body { padding:8px; }
@@ -242,6 +280,11 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
    <h2>상품조회</h2>
    <p>전체 상품정보 및 소매가 조회</p>
   </div>
+  <div class="menu-card" onclick="openPaymentPage()">
+   <div class="menu-icon">💰</div>
+   <h2>거래처 입금내역</h2>
+   <p>거래처별 입금 기록 및 금액 조회</p>
+  </div>
  </div>
 </div>
 
@@ -292,7 +335,6 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
   <h1>SW 상품조회</h1>
   <button class="back-button" onclick="goToMenu()">← 프로그램 선택</button>
  </div>
-
  <div class="panel">
   <div class="simple-search-row">
    <input type="text" id="simpleSearchInput" placeholder="상품명 또는 바코드 검색">
@@ -310,7 +352,6 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
   </div>
   <div id="simpleStatusMessage" class="status-message">상품 데이터를 불러올 준비가 되었습니다.</div>
  </div>
-
  <div class="panel">
   <div class="simple-table-wrapper">
    <table class="simple-table">
@@ -379,6 +420,47 @@ label { display:block; font-size:14px; font-weight:bold; margin-bottom:8px; }
  <div class="stock-status" id="stockStatusMessage">구글 스프레드시트 연결 중...</div>
 </div>
 
+<!-- 거래처 입금내역 -->
+<div id="paymentScreen" class="payment-container hidden">
+ <div class="header-row">
+  <h1>💰 거래처 입금내역</h1>
+  <button class="back-button" onclick="goToMenu()">← 프로그램 선택</button>
+ </div>
+
+ <div class="panel">
+  <div class="payment-toolbar">
+   <input type="text" id="paymentSearchInput" placeholder="거래처명 또는 비고 검색" oninput="renderPayments()">
+   <button class="payment-refresh-btn" id="paymentRefreshBtn" onclick="loadPaymentData()">↻ 새로고침</button>
+  </div>
+  <div class="payment-info">
+   <span>입금 내역 <b id="paymentCount" class="payment-count">0</b>건</span>
+   <span id="paymentUpdateTime">데이터 확인 중</span>
+  </div>
+  <div id="paymentStatusMessage" class="payment-status">구글 스프레드시트 연결 중...</div>
+ </div>
+
+ <div class="panel">
+  <div class="payment-table-wrap">
+   <table class="payment-table">
+    <thead>
+     <tr>
+      <th>거래일시</th>
+      <th>입금금액</th>
+      <th>거래기록사항</th>
+      <th>비고</th>
+     </tr>
+    </thead>
+    <tbody id="paymentTableBody">
+     <tr><td colspan="4" class="payment-loading">입금 데이터를 불러오는 중입니다.</td></tr>
+    </tbody>
+   </table>
+  </div>
+  <div class="payment-mobile-list" id="paymentMobileList">
+   <div class="payment-loading">입금 데이터를 불러오는 중입니다.</div>
+  </div>
+ </div>
+</div>
+
 </div>
 
 <script>
@@ -394,6 +476,10 @@ const ORDER_SHEETS = ["3M","프린텍","유니","짐모아","스테들러","아�
 
 const STOCK_SPREADSHEET_ID = "168qV0AZ9hCTgU15EStP3UDo4fBTxuPeU";
 const STOCK_SUPPLIERS = ["3M","짐모아","스테들러","유니","파이롯트","항소","톰보","화이트 프린텍"];
+
+/* 신규 입금내역 시트 */
+const PAYMENT_SPREADSHEET_ID = "1GMY5fLj3BtmAOkvKlrzCSPQUVoMPSJYaKfxpOK2GURY";
+const PAYMENT_GID = "1151248181";
 
 const PASSWORD = "0000";
 let activePage = "menu";
@@ -414,10 +500,11 @@ document.getElementById("password").addEventListener("keydown",e => {
 });
 
 function hideAllPages() {
- ["loginScreen","menuScreen","productScreen","simpleProductScreen","orderScreen","stockScreen"].forEach(id => {
+ ["loginScreen","menuScreen","productScreen","simpleProductScreen","orderScreen","stockScreen","paymentScreen"].forEach(id => {
   document.getElementById(id).classList.add("hidden");
  });
 }
+
 function goToMenu() {
  stopScanner();
  stopSimpleScanner();
@@ -425,12 +512,14 @@ function goToMenu() {
  document.getElementById("menuScreen").classList.remove("hidden");
  activePage = "menu";
 }
+
 function openProductPage() {
  hideAllPages();
  document.getElementById("productScreen").classList.remove("hidden");
  activePage = "product";
  if (!productLoaded || !customerLoaded) loadProductData();
 }
+
 function openOrderPage() {
  hideAllPages();
  document.getElementById("orderScreen").classList.remove("hidden");
@@ -438,6 +527,7 @@ function openOrderPage() {
  if (!orderDataLoaded) loadOrderData();
  else renderOrders();
 }
+
 function openStockPage() {
  hideAllPages();
  document.getElementById("stockScreen").classList.remove("hidden");
@@ -448,7 +538,7 @@ function openStockPage() {
  loadStockSheet(currentStockSupplier,stockData[currentStockSupplier].length > 0);
 }
 
-/* 새로 추가한 별도 상품조회 기능 */
+/* 별도 상품조회 */
 const SIMPLE_PRODUCT_SPREADSHEET_ID = "19WlE1Iou4tsuqdb5qACWUheZeX3-F1ccNKs4_IucepQ";
 const SIMPLE_PRODUCT_GID = "1714186521";
 let simpleProducts = [];
@@ -474,8 +564,7 @@ function loadSimpleProducts() {
  const script = document.createElement("script");
  script.async = true;
  let finished = false;
-
- const timeout = setTimeout(() => finishError("응답 시간이 초과되었습니다."), 20000);
+ const timeout = setTimeout(() => finishError("응답 시간이 초과되었습니다."),20000);
 
  function cleanup() {
   if (finished) return;
@@ -499,21 +588,18 @@ function loadSimpleProducts() {
     throw new Error("상품 데이터를 불러오지 못했습니다.");
    }
    const rows = response.table.rows || [];
-
-   // 새 시트 열 순서: A 바코드 / B 상품분류 / C 메이커 / D 상품명 / E 규격 / F 소매가
    simpleProducts = rows.map(row => {
     const cells = row.c || [];
     return {
-     barcode: getSimpleCellValue(cells[0]),
-     category: getSimpleCellValue(cells[1]),
-     maker: getSimpleCellValue(cells[2]),
-     name: getSimpleCellValue(cells[3]),
-     size: getSimpleCellValue(cells[4]),
-     price: getSimpleCellValue(cells[5])
+     barcode:getSimpleCellValue(cells[0]),
+     category:getSimpleCellValue(cells[1]),
+     maker:getSimpleCellValue(cells[2]),
+     name:getSimpleCellValue(cells[3]),
+     size:getSimpleCellValue(cells[4]),
+     price:getSimpleCellValue(cells[5])
     };
    });
 
-   // 첫 행에 제목이 들어있는 경우 자동 제외
    if (simpleProducts.length &&
        (simpleProducts[0].barcode.includes("바코드") ||
         simpleProducts[0].name.includes("상품명"))) simpleProducts.shift();
@@ -637,7 +723,7 @@ function renderSimpleProducts(results) {
  });
 }
 
-/* 새 상품조회 전용 바코드 스캐너 */
+/* 상품조회 전용 바코드 스캐너 */
 async function startSimpleScanner() {
  if (simpleScannerRunning) return;
  if (typeof Html5Qrcode === "undefined") {
@@ -1373,7 +1459,235 @@ function updateStockLastUpdated() {
   date ? "갱신 " + date.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",second:"2-digit"}) : "데이터 확인 중";
 }
 
-/* 초기 설정 및 자동 새로고침 */
+/* =====================================
+   신규 기능 : 거래처 입금내역
+===================================== */
+
+let paymentData = [];
+let paymentLoading = false;
+let paymentLoaded = false;
+let paymentRequestSequence = 0;
+
+/* 입금내역 셀 데이터 가져오기 */
+function getPaymentCellValue(cell) {
+ if (!cell) return "";
+ if (cell.f !== null && cell.f !== undefined) return String(cell.f).trim();
+ if (cell.v !== null && cell.v !== undefined) return String(cell.v).trim();
+ return "";
+}
+
+/* 입금일시 날짜 표시 */
+function formatPaymentDate(value) {
+ if (value === null || value === undefined || value === "") return "-";
+
+ const text = String(value).trim();
+
+ // 구글 시트 날짜 형식 Date(연도,월,일,시,분,초)
+ const match = text.match(/Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)/);
+
+ if (match) {
+  const year = Number(match[1]);
+  const month = Number(match[2])+1;
+  const day = Number(match[3]);
+  const hour = Number(match[4] || 0);
+  const minute = Number(match[5] || 0);
+  const second = Number(match[6] || 0);
+
+  return `${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")} ${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}`;
+ }
+
+ return text;
+}
+
+/* 입금금액 표시 */
+function formatPaymentAmount(value) {
+ if (value === null || value === undefined || value === "") return "-";
+
+ const number = Number(String(value).replace(/,/g,"").replace(/[^\d.-]/g,""));
+
+ if (!Number.isFinite(number)) return escapeHTML(value);
+
+ return number.toLocaleString("ko-KR") + "원";
+}
+
+/* 입금내역 페이지 열기 */
+function openPaymentPage() {
+ hideAllPages();
+ document.getElementById("paymentScreen").classList.remove("hidden");
+ activePage = "payment";
+
+ if (!paymentLoaded) {
+  loadPaymentData();
+ } else {
+  renderPayments();
+ }
+}
+
+/* 구글 시트 입금내역 불러오기 */
+function loadPaymentData() {
+ if (paymentLoading) return;
+
+ paymentLoading = true;
+ const requestId = ++paymentRequestSequence;
+
+ const refreshButton = document.getElementById("paymentRefreshBtn");
+ refreshButton.disabled = true;
+
+ document.getElementById("paymentStatusMessage").textContent = "입금내역을 불러오는 중입니다.";
+
+ const callbackName = "paymentCallback_" + Date.now() + "_" + Math.floor(Math.random()*100000);
+ const script = document.createElement("script");
+ script.async = true;
+ let finished = false;
+
+ const timeout = setTimeout(() => {
+  finishError("응답 시간이 초과되었습니다.");
+ },20000);
+
+ function cleanup() {
+  if (finished) return;
+  finished = true;
+  clearTimeout(timeout);
+  script.remove();
+  delete window[callbackName];
+  paymentLoading = false;
+  refreshButton.disabled = false;
+ }
+
+ function finishError(message) {
+  if (finished) return;
+  cleanup();
+  document.getElementById("paymentStatusMessage").textContent = "입금내역을 불러오지 못했습니다: " + message;
+  if (!paymentLoaded) {
+   document.getElementById("paymentTableBody").innerHTML =
+    '<tr><td colspan="4" class="payment-empty">입금 데이터를 불러오지 못했습니다.</td></tr>';
+   document.getElementById("paymentMobileList").innerHTML =
+    '<div class="payment-empty">입금 데이터를 불러오지 못했습니다.</div>';
+  }
+  console.error("입금내역 오류:",message);
+ }
+
+ window[callbackName] = function(response) {
+  if (finished || requestId !== paymentRequestSequence) return;
+
+  try {
+   if (!response) throw new Error("응답 데이터가 없습니다.");
+
+   if (response.status === "error") {
+    const message = response.errors && response.errors[0]
+     ? (response.errors[0].detailed_message || response.errors[0].message)
+     : "구글 시트 응답 오류";
+    throw new Error(message);
+   }
+
+   if (!response.table) throw new Error("시트 데이터를 읽을 수 없습니다.");
+
+   const rows = response.table.rows || [];
+
+   /*
+    * 시트 구조
+    * A열(0): 거래일시
+    * B열(1): 빈칸
+    * C열(2): 입금금액
+    * D열(3): 빈칸
+    * E열(4): 빈칸
+    * F열(5): 거래기록사항
+    * G열(6): 비고
+    *
+    * 4행은 표 헤더
+    * 5행부터 실제 데이터
+    *
+    * GVIZ는 시트 데이터의 첫 행을 rows[0]으로 전달하므로
+    * 앞의 4개 행을 제외하고 가져옵니다.
+    */
+
+   paymentData = rows.slice(4).map(row => {
+    const cells = row.c || [];
+
+    return {
+     date:formatPaymentDate(getPaymentCellValue(cells[0])),
+     amount:getPaymentCellValue(cells[2]),
+     customer:getPaymentCellValue(cells[5]),
+     note:getPaymentCellValue(cells[6])
+    };
+   }).filter(item =>
+    item.date || item.amount || item.customer || item.note
+   );
+
+   paymentLoaded = true;
+
+   document.getElementById("paymentUpdateTime").textContent =
+    "갱신 " + new Date().toLocaleTimeString("ko-KR");
+
+   document.getElementById("paymentStatusMessage").textContent =
+    "입금내역 " + paymentData.length.toLocaleString("ko-KR") + "건을 정상적으로 불러왔습니다.";
+
+   renderPayments();
+
+   cleanup();
+
+  } catch(error) {
+   finishError(error.message || "데이터 처리 중 오류가 발생했습니다.");
+  }
+ };
+
+ const url = "https://docs.google.com/spreadsheets/d/" +
+  PAYMENT_SPREADSHEET_ID +
+  "/gviz/tq?gid=" + PAYMENT_GID +
+  "&headers=0&tqx=" +
+  encodeURIComponent("out:json;responseHandler:" + callbackName);
+
+ script.onerror = () => finishError("구글 스프레드시트 연결에 실패했습니다. 시트 공유 설정을 확인해주세요.");
+ script.src = url;
+ document.body.appendChild(script);
+}
+
+/* 입금내역 검색 및 화면 표시 */
+function renderPayments() {
+ const tbody = document.getElementById("paymentTableBody");
+ const mobile = document.getElementById("paymentMobileList");
+
+ const keyword = document.getElementById("paymentSearchInput").value.trim().toLowerCase();
+
+ const results = paymentData.filter(item => {
+  const searchTarget = `${item.customer} ${item.note} ${item.date}`.toLowerCase();
+  return !keyword || searchTarget.includes(keyword);
+ });
+
+ document.getElementById("paymentCount").textContent =
+  results.length.toLocaleString("ko-KR");
+
+ tbody.innerHTML = "";
+ mobile.innerHTML = "";
+
+ if (results.length === 0) {
+  tbody.innerHTML = '<tr><td colspan="4" class="payment-empty">조회된 입금 내역이 없습니다.</td></tr>';
+  mobile.innerHTML = '<div class="payment-empty">조회된 입금 내역이 없습니다.</div>';
+  return;
+ }
+
+ /* PC 표 화면 */
+ tbody.innerHTML = results.map(item => `
+  <tr>
+   <td class="payment-date">${escapeHTML(item.date || "-")}</td>
+   <td class="payment-amount">${formatPaymentAmount(item.amount)}</td>
+   <td class="payment-customer">${escapeHTML(item.customer || "-")}</td>
+   <td class="payment-note">${escapeHTML(item.note || "-")}</td>
+  </tr>
+ `).join("");
+
+ /* 모바일 카드 화면 */
+ mobile.innerHTML = results.map(item => `
+  <div class="payment-card">
+   <div class="payment-card-date">${escapeHTML(item.date || "-")}</div>
+   <div class="payment-card-customer">${escapeHTML(item.customer || "거래처명 없음")}</div>
+   <div class="payment-card-amount">${formatPaymentAmount(item.amount)}</div>
+   ${item.note ? `<div class="payment-card-note">비고 : ${escapeHTML(item.note)}</div>` : ""}
+  </div>
+ `).join("");
+}
+
+/* 초기 설정 */
 createOrderTabs();
 createStockTabs();
 
@@ -1391,7 +1705,11 @@ setInterval(function() {
  if (activePage === "stock") {
   loadStockSheet(currentStockSupplier,true);
  }
+ if (activePage === "payment") {
+  loadPaymentData();
+ }
 },60000);
+
 </script>
 </body>
 </html>
